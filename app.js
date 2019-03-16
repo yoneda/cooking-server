@@ -29,6 +29,22 @@ router.get("/delayHello",async(ctx,next)=>{
   ctx.body = yourTalk.text;
 })
 
+router.get("/tasks",async(ctx,next)=>{
+  const mysql = require("mysql");
+  const connection = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "tododb"
+  });
+  connection.connect();
+  connection.query("select * from tasks",(err,results,fields)=>{
+    results.forEach((result)=>{
+      console.log(result.name);
+    });
+  })
+})
+
 app.use(router.routes()).use(router.allowedMethods());
 
 app.listen(3000, ()=>console.log("running on port 3000"));
