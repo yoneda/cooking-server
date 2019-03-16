@@ -62,8 +62,26 @@ const delayUpdateTask = (id,done) => {
     });
     connection.connect();
     connection.query("update tasks set done = ? where id = ?",[done,id],(err,results,fields)=>{
-      const tasks = JSON.parse(JSON.stringify(results));
-      resolve(tasks);
+      const info = JSON.parse(JSON.stringify(results));
+      resolve(info);
+    })
+    connection.end();
+  })
+}
+
+const delayAddTask = (name) => {
+  return new Promise((resolve,reject)=>{
+    const mysql = require("mysql");
+    const connection = mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "tododb"
+    });
+    connection.connect();
+    connection.query("insert into tasks(name, done, removed) values(?, false, false)",[name],(err,results,fields)=>{
+      const info = JSON.parse(JSON.stringify(results));
+      resolve(info);
     })
     connection.end();
   })
@@ -80,6 +98,14 @@ router.post("/tasks",async(ctx,next)=>{
   const id = ctx.request.body.id;
   const done = ctx.request.body.done;
   const status = await delayUpdateTask(id,done);
+  const tasks = await delayObtainTasks();
+  ctx.body = {tasks:tasks};
+})
+
+// あるタスクを追加する
+router.post("/tasks/add",async(ctx,next)=>{
+  const name = ctx.request.body.name;
+  const info = await delayAddTask(name);
   const tasks = await delayObtainTasks();
   ctx.body = {tasks:tasks};
 })
