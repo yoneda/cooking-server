@@ -25,7 +25,9 @@ const delayObtainTasks = () => {
     });
     connection.connect();
     connection.query("select * from tasks",(err,results,fields)=>{
-      const tasks = JSON.parse(JSON.stringify(results));
+      const entities = JSON.parse(JSON.stringify(results));
+      const filtered = entities.filter((entity)=>entity.removed===0);
+      const tasks = filtered.map((entity)=>({id:entity.id,name:entity.name,done:entity.done}));
       resolve(tasks);
     })
     connection.end();
@@ -91,8 +93,7 @@ const delayRemoveTask = (id) => {
 
 // すべてのタスクを取得
 router.get("/tasks",async(ctx,next)=>{
-  const entities = await delayObtainTasks();
-  const tasks = entities.map((entity)=>({id:entity.id,name:entity.name,done:entity.done}));
+  const tasks = await delayObtainTasks();
   ctx.body = {tasks:tasks};
 })
 
