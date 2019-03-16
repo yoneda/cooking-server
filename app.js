@@ -87,6 +87,24 @@ const delayAddTask = (name) => {
   })
 }
 
+const delayRemoveTask = (id) => {
+  return new Promise((resolve,reject)=>{
+    const mysql = require("mysql");
+    const connection = mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "tododb"
+    });
+    connection.connect();
+    connection.query("update tasks set removed = true where id = ?",[id],(err,results,fields)=>{
+      const info = JSON.parse(JSON.stringify(results));
+      resolve(info);
+    })
+    connection.end();
+  })
+}
+
 // すべてのタスクを取得
 router.get("/tasks",async(ctx,next)=>{
   const tasks = await delayObtainTasks();
@@ -106,6 +124,14 @@ router.post("/tasks",async(ctx,next)=>{
 router.post("/tasks/add",async(ctx,next)=>{
   const name = ctx.request.body.name;
   const info = await delayAddTask(name);
+  const tasks = await delayObtainTasks();
+  ctx.body = {tasks:tasks};
+})
+
+// あるタスクを削除する
+router.post("/tasks/remove",async(ctx,next)=>{
+  const id = ctx.request.body.id;
+  const status = await delayRemoveTask(id);
   const tasks = await delayObtainTasks();
   ctx.body = {tasks:tasks};
 })
