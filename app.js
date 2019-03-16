@@ -1,6 +1,7 @@
 'use strict';
 const koa = require('koa');
 const koaRouter = require('koa-router');
+const bodyParser = require('koa-bodyparser');
 const json = require('koa-json');
 
 const app = new koa();
@@ -8,6 +9,9 @@ const router = new koaRouter();
 
 // jsonを返す場合 pretty-print
 app.use(json());
+
+// postのパラメータをctx.request.body に挿入する
+app.use(bodyParser());
 
 router.get("/hello",async(ctx,next)=>{
   ctx.body = "hello world";
@@ -29,24 +33,55 @@ router.get("/delayHello",async(ctx,next)=>{
   ctx.body = yourTalk.text;
 })
 
-const delayObtainTasks = new Promise((resolve,reject)=>{
-  const mysql = require("mysql");
-  const connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "tododb"
-  });
-  connection.connect();
-  connection.query("select * from tasks",(err,results,fields)=>{
-    const tasks = JSON.parse(JSON.stringify(results));
-    resolve(tasks);
+const delayObtainTasks = () => {
+  return new Promise((resolve,reject)=>{
+    const mysql = require("mysql");
+    const connection = mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "tododb"
+    });
+    connection.connect();
+    connection.query("select * from tasks",(err,results,fields)=>{
+      const tasks = JSON.parse(JSON.stringify(results));
+      resolve(tasks);
+    })
+    connection.end();
   })
+}
+
+const delayUpdateTask = (id,done) => {
+  return new Promise((resolve,reject)=>{
+    const mysql = require("mysql");
+    const connection = mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "tododb"
+    });
+    connection.connect();
+    connection.query("update tasks set done = ? where id = ?",[done,id],(err,results,fields)=>{
+      const tasks = JSON.parse(JSON.stringify(results));
+      resolve(tasks);
+    })
+    connection.end();
+  })
+}
+
+// すべてのタスクを取得
+router.get("/tasks",async(ctx,next)=>{
+  const tasks = await delayObtainTasks();
+  ctx.body = {tasks:tasks};
 })
 
-router.get("/tasks",async(ctx,next)=>{
-  const tasks = await delayObtainTasks;
-  ctx.body = tasks;
+// あるタスクを完了状態にする
+router.post("/tasks",async(ctx,next)=>{
+  const id = ctx.request.body.id;
+  const done = ctx.request.body.done;
+  const status = await delayUpdateTask(id,done);
+  const tasks = await delayObtainTasks();
+  ctx.body = {tasks:tasks};
 })
 
 app.use(router.routes()).use(router.allowedMethods());
