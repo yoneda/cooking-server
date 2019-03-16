@@ -13,26 +13,6 @@ app.use(json());
 // postのパラメータをctx.request.body に挿入する
 app.use(bodyParser());
 
-router.get("/hello",async(ctx,next)=>{
-  ctx.body = "hello world";
-});
-
-// 遅延処理
-
-// Node.js は元々、非同期のプログラム(同期しない、時間がかかる処理があってもそれを待たないで次のプロセスにうつる)
-// Promise は処理が終わるのを待って、終わりしだいresolveの結果を返すオブジェクト。失敗した場合はrejectを返す。
-// 関数の前にasync をつけると、返り値がPromise になる
-// awaitは、async関数の実行を一時停止してPromiseの解決を待ちます。そしてPromiseでresolveされる値を返します。
-// awaitはsync宣言された関数の中でのみ有効
-const sayHello = new Promise((resolve,reject)=>{
-  setTimeout(()=>resolve({text:"sorry, I'm late. heloo!!!"}),5000);
-})
-
-router.get("/delayHello",async(ctx,next)=>{
-  const yourTalk = await sayHello;
-  ctx.body = yourTalk.text;
-})
-
 const delayObtainTasks = () => {
   return new Promise((resolve,reject)=>{
     const mysql = require("mysql");
@@ -107,7 +87,8 @@ const delayRemoveTask = (id) => {
 
 // すべてのタスクを取得
 router.get("/tasks",async(ctx,next)=>{
-  const tasks = await delayObtainTasks();
+  const entities = await delayObtainTasks();
+  const tasks = entities.map((entity)=>({id:entity.id,name:entity.name,done:entity.done}));
   ctx.body = {tasks:tasks};
 })
 
