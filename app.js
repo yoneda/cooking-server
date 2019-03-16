@@ -29,7 +29,7 @@ router.get("/delayHello",async(ctx,next)=>{
   ctx.body = yourTalk.text;
 })
 
-router.get("/tasks",async(ctx,next)=>{
+const delayObtainTasks = new Promise((resolve,reject)=>{
   const mysql = require("mysql");
   const connection = mysql.createConnection({
     host: "localhost",
@@ -39,10 +39,14 @@ router.get("/tasks",async(ctx,next)=>{
   });
   connection.connect();
   connection.query("select * from tasks",(err,results,fields)=>{
-    results.forEach((result)=>{
-      console.log(result.name);
-    });
+    const tasks = JSON.parse(JSON.stringify(results));
+    resolve(tasks);
   })
+})
+
+router.get("/tasks",async(ctx,next)=>{
+  const tasks = await delayObtainTasks;
+  ctx.body = tasks;
 })
 
 app.use(router.routes()).use(router.allowedMethods());
