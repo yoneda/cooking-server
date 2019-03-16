@@ -3,9 +3,13 @@ const koa = require('koa');
 const koaRouter = require('koa-router');
 const bodyParser = require('koa-bodyparser');
 const json = require('koa-json');
+const cors = require('@koa/cors');
 
 const app = new koa();
 const router = new koaRouter();
+
+// corsを許可
+app.use(cors());
 
 // jsonを返す場合 pretty-print
 app.use(json());
