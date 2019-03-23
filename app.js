@@ -113,7 +113,7 @@ router.post("/tasks",async(ctx,next)=>{
 // あるタスクを追加する
 router.post("/tasks/add",async(ctx,next)=>{
   const name = ctx.request.body.name;
-  const info = await delayAddTask(name);
+  const status = await delayAddTask(name);
   const tasks = await delayObtainTasks();
   ctx.body = {tasks:tasks};
 })
