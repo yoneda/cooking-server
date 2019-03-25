@@ -8,6 +8,8 @@ const cors = require('@koa/cors');
 const app = new koa();
 const router = new koaRouter();
 
+const delayObtainTasks = require('./utils/delayObtainTasks.js');
+
 // corsを許可
 app.use(cors());
 
@@ -17,6 +19,7 @@ app.use(json());
 // postのパラメータをctx.request.body に挿入する
 app.use(bodyParser());
 
+/*
 const delayObtainTasks = () => {
   return new Promise((resolve,reject)=>{
     const mysql = require("mysql");
@@ -36,7 +39,7 @@ const delayObtainTasks = () => {
     })
     connection.end();
   })
-}
+}*/
 
 const delayUpdateTask = (id,done) => {
   return new Promise((resolve,reject)=>{
