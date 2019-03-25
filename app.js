@@ -9,6 +9,9 @@ const app = new koa();
 const router = new koaRouter();
 
 const delayObtainTasks = require('./utils/delayObtainTasks.js');
+const delayUpdateTask = require('./utils/delayUpdateTask.js');
+const delayAddTask = require('./utils/delayAddTask.js');
+const delayRemoveTask = require('./utils/delayRemoveTask.js');
 
 // corsを許可
 app.use(cors());
@@ -18,85 +21,6 @@ app.use(json());
 
 // postのパラメータをctx.request.body に挿入する
 app.use(bodyParser());
-
-/*
-const delayObtainTasks = () => {
-  return new Promise((resolve,reject)=>{
-    const mysql = require("mysql");
-    const connection = mysql.createConnection({
-      host: "zj2x67aktl2o6q2n.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
-      user: "a6gy1hq79u3dsfkr",
-      password: "ios34vdfh0jbsoj3",
-      database: "kqp69lp9xo2uinaf",
-      port:"3306",
-    });
-    connection.connect();
-    connection.query("select * from tasks",(err,results,fields)=>{
-      const entities = JSON.parse(JSON.stringify(results));
-      const filtered = entities.filter((entity)=>entity.removed===0);
-      const tasks = filtered.map((entity)=>({id:entity.id,name:entity.name,done:entity.done}));
-      resolve(tasks);
-    })
-    connection.end();
-  })
-}*/
-
-const delayUpdateTask = (id,done) => {
-  return new Promise((resolve,reject)=>{
-    const mysql = require("mysql");
-    const connection = mysql.createConnection({
-      host: "zj2x67aktl2o6q2n.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
-      user: "a6gy1hq79u3dsfkr",
-      password: "ios34vdfh0jbsoj3",
-      database: "kqp69lp9xo2uinaf",
-      port:"3306",
-    });
-    connection.connect();
-    connection.query("update tasks set done = ? where id = ?",[done,id],(err,results,fields)=>{
-      const info = JSON.parse(JSON.stringify(results));
-      resolve(info);
-    })
-    connection.end();
-  })
-}
-
-const delayAddTask = (name) => {
-  return new Promise((resolve,reject)=>{
-    const mysql = require("mysql");
-    const connection = mysql.createConnection({
-      host: "zj2x67aktl2o6q2n.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
-      user: "a6gy1hq79u3dsfkr",
-      password: "ios34vdfh0jbsoj3",
-      database: "kqp69lp9xo2uinaf",
-      port:"3306",
-    });
-    connection.connect();
-    connection.query("insert into tasks(name, done, removed) values(?, false, false)",[name],(err,results,fields)=>{
-      const info = JSON.parse(JSON.stringify(results));
-      resolve(info);
-    })
-    connection.end();
-  })
-}
-
-const delayRemoveTask = (id) => {
-  return new Promise((resolve,reject)=>{
-    const mysql = require("mysql");
-    const connection = mysql.createConnection({
-      host: "zj2x67aktl2o6q2n.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
-      user: "a6gy1hq79u3dsfkr",
-      password: "ios34vdfh0jbsoj3",
-      database: "kqp69lp9xo2uinaf",
-      port:"3306",
-    });
-    connection.connect();
-    connection.query("update tasks set removed = true where id = ?",[id],(err,results,fields)=>{
-      const info = JSON.parse(JSON.stringify(results));
-      resolve(info);
-    })
-    connection.end();
-  })
-}
 
 // すべてのタスクを取得
 router.get("/tasks",async(ctx,next)=>{
