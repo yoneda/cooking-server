@@ -19,6 +19,8 @@ const knexConfig = {
 };
 const knex = require("knex")(knexConfig);
 
+const dayjs = require("dayjs");
+
 // corsを許可
 app.use(cors());
 
@@ -50,8 +52,45 @@ router.get("/recipes/:id", async (ctx, next) => {
 // TODO: 必須のリクエストパラメータがあるか考える
 router.post("/recipes", async (ctx, next) => {
   const { title, ingredients, directions, cookTime, cost } = ctx.query;
-  const ingredientList = ingredients.split(",");
-  const directionList = directions.split(",");
+  const recipesId = await knex
+    .into("recipes")
+    .insert({
+      title,
+      updatedAt: dayjs().format("YYYY-M-D H:mm:ss"),
+      createdAt: dayjs().format("YYYY-M-D H:mm:ss"),
+      cookTime: parseInt(cookTime, 10),
+      cost: parseInt(cost, 10)
+    })
+    .then(id => id[0]);
+  const directionsId = await knex
+    .into("directions")
+    .insert(
+      directions.split(",").map((direction, index) => ({
+        text: direction,
+        recipe: recipesId,
+        process: index
+      }))
+    )
+    .then(id => id[0]);
+  const ingredientIds = await Promise.all(
+    ingredients.split(",").map(ingredient =>
+      knex
+        .into("ingredients")
+        .insert({
+          name: ingredient
+        })
+        .then(id => id[0])
+    )
+  );
+
+  await knex.into("recipes_ingredients").insert(
+    ingredientIds.map(id=>({
+      recipe: recipesId,
+      ingredient: id,
+    }))
+  );
+
+  console.log("done!");
 });
 
 app.use(router.routes()).use(router.allowedMethods());
