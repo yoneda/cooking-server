@@ -101,11 +101,21 @@ router.get("/users", async (ctx, next) => {
 
 router.get("/users/:account", async (ctx, next) => {
   const { account } = ctx.params;
-  const [ user ] = await knex
+  const [user] = await knex
     .select()
     .from("users")
     .where({ account })
     .limit(1);
+  ctx.body = { user: user };
+});
+
+router.post("/users", async (ctx, next) => {
+  const { account, mail, pass } = ctx.query;
+  const [id] = await knex.into("users").insert({ account, mail, pass });
+  const [user] = await knex
+    .select()
+    .from("users")
+    .where({ id });
   ctx.body = { user: user };
 });
 
