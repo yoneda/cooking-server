@@ -8,6 +8,18 @@ const cors = require("@koa/cors");
 const app = new koa();
 const router = new koaRouter();
 
+const knexConfig = {
+  client: "mysql",
+  connection: {
+    host: "m7nj9dclezfq7ax1.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+    user: "a6p9p4y8675jagbb",
+    password: "vh2sf4kiobbbdmy7",
+    database: "do6sfdqn1wbkjayj",
+  }
+};
+const knex = require("knex")(knexConfig);
+
+
 // corsを許可
 app.use(cors());
 
@@ -19,16 +31,7 @@ app.use(bodyParser());
 
 // すべてのユーザ情報を取得
 router.get("/users", async (ctx, next) => {
-  const results = await new Promise(resolve => {
-    const mysql = require("mysql");
-    const config = require("./dbconfig");
-    const connection = mysql.createConnection(config);
-    connection.connect();
-    connection.query("select * from users", (errors, results, fields) => {
-      resolve(results);
-    });
-    connection.end();
-  });
+  const results = await knex.select().from("users");
   ctx.body = {hoge:results};
 });
 
