@@ -145,6 +145,14 @@ router.put("/users", async (ctx, next) => {
   // PUTの定義に厳密に従うのならば、リソースがなければ作成、という部分を実装する必要があるが今回は一旦省いている。
 });
 
+router.del("/users", async (ctx, next) => {
+  const { account } = ctx.query;
+  const num = await knex("users")
+    .where({ account })
+    .del();
+  ctx.body = {success: num > 0 };
+});
+
 app.use(router.routes()).use(router.allowedMethods());
 
 app.listen(process.env.PORT || 3000, () => console.log(process.env.PORT));
