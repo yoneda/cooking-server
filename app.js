@@ -14,11 +14,10 @@ const knexConfig = {
     host: "m7nj9dclezfq7ax1.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
     user: "a6p9p4y8675jagbb",
     password: "vh2sf4kiobbbdmy7",
-    database: "do6sfdqn1wbkjayj",
+    database: "do6sfdqn1wbkjayj"
   }
 };
 const knex = require("knex")(knexConfig);
-
 
 // corsを許可
 app.use(cors());
@@ -29,10 +28,23 @@ app.use(json());
 // postのパラメータをctx.request.body に挿入する
 app.use(bodyParser());
 
-// すべてのユーザ情報を取得
-router.get("/users", async (ctx, next) => {
-  const results = await knex.select().from("users");
-  ctx.body = {hoge:results};
+// レシピ
+router.get("/recipes", async (ctx, next) => {
+  const recipes = await knex
+    .select()
+    .from("recipes")
+    .orderBy("createdAt", "desc");
+  ctx.body = { recipes: recipes };
+});
+
+router.get("/recipes/:id", async (ctx, next) => {
+  const { id } = ctx.params;
+  const recipe = await knex
+    .select()
+    .from("recipes")
+    .where("id", id)
+    .limit(1);
+  ctx.body = { recipe: recipe };
 });
 
 app.use(router.routes()).use(router.allowedMethods());
