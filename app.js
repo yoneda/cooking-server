@@ -84,9 +84,9 @@ router.post("/recipes", async (ctx, next) => {
   );
 
   await knex.into("recipes_ingredients").insert(
-    ingredientIds.map(id=>({
+    ingredientIds.map(id => ({
       recipe: recipesId,
-      ingredient: id,
+      ingredient: id
     }))
   );
 
@@ -95,10 +95,18 @@ router.post("/recipes", async (ctx, next) => {
 
 // ユーザ
 router.get("/users", async (ctx, next) => {
-  const users = await knex
+  const users = await knex.select().from("users");
+  ctx.body = { users: users };
+});
+
+router.get("/users/:account", async (ctx, next) => {
+  const { account } = ctx.params;
+  const [ user ] = await knex
     .select()
     .from("users")
-  ctx.body = { users: users };
+    .where({ account })
+    .limit(1);
+  ctx.body = { user: user };
 });
 
 app.use(router.routes()).use(router.allowedMethods());
