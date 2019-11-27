@@ -30,6 +30,7 @@ app.use(json());
 // postのパラメータをctx.request.body に挿入する
 app.use(bodyParser());
 
+// TODO: 必須のリクエストパラメータがあるか考える
 // レシピ
 router.get("/recipes", async (ctx, next) => {
   const recipes = await knex
@@ -49,7 +50,6 @@ router.get("/recipes/:id", async (ctx, next) => {
   ctx.body = { recipe: recipe };
 });
 
-// TODO: 必須のリクエストパラメータがあるか考える
 router.post("/recipes", async (ctx, next) => {
   const { title, ingredients, directions, cookTime, cost } = ctx.query;
   const recipesId = await knex
@@ -91,6 +91,14 @@ router.post("/recipes", async (ctx, next) => {
   );
 
   console.log("done!");
+});
+
+// ユーザ
+router.get("/users", async (ctx, next) => {
+  const users = await knex
+    .select()
+    .from("users")
+  ctx.body = { users: users };
 });
 
 app.use(router.routes()).use(router.allowedMethods());
