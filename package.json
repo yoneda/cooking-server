@@ -20,6 +20,7 @@
   "homepage": "https://github.com/yoneda/koa-templete#readme",
   "dependencies": {
     "@koa/cors": "^3.0.0",
+    "knex": "^0.20.2",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-json": "^2.0.2",
