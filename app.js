@@ -117,7 +117,10 @@ router.post("/users", async (ctx, next) => {
     .from("users")
     .where({ id });
   ctx.body = { user: user };
+  // TODO: 返却するHttpResponceのstatusを201にする(現状は200)
 });
+
+
 
 app.use(router.routes()).use(router.allowedMethods());
 
