@@ -20,6 +20,7 @@ const knexConfig = {
 const knex = require("knex")(knexConfig);
 
 const dayjs = require("dayjs");
+const { pickBy, cloneDeep } = require("lodash");
 
 // corsを許可
 app.use(cors());
@@ -120,7 +121,29 @@ router.post("/users", async (ctx, next) => {
   // TODO: 返却するHttpResponceのstatusを201にする(現状は200)
 });
 
+router.put("/users", async (ctx, next) => {
+  const query = cloneDeep(ctx.query);
+  const { account } = query;
+  const clearQuery = pickBy(
+    query,
+    (value, key) => key !== "account" && value !== undefined
+  );
 
+  const id = await knex("users")
+    .where({ account })
+    .update(clearQuery);
+
+  const [user] = await knex
+    .select()
+    .from("users")
+    .where({ id: 1 })
+    .limit(1);
+
+  ctx.body = { user };
+  // TODO: 返却するHttpResponceのstatusを201にする(現状は200)
+  // TODO: HTTPメソッドのPUTは、リソースの更新、なければ作成と定義されている
+  // PUTの定義に厳密に従うのならば、リソースがなければ作成、という部分を実装する必要があるが今回は一旦省いている。
+});
 
 app.use(router.routes()).use(router.allowedMethods());
 
