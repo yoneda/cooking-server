@@ -47,6 +47,13 @@ router.get("/recipes/:id", async (ctx, next) => {
   ctx.body = { recipe: recipe };
 });
 
+// TODO: 必須のリクエストパラメータがあるか考える
+router.post("/recipes", async (ctx, next) => {
+  const { title, ingredients, directions, cookTime, cost } = ctx.query;
+  const ingredientList = ingredients.split(",");
+  const directionList = directions.split(",");
+});
+
 app.use(router.routes()).use(router.allowedMethods());
 
 app.listen(process.env.PORT || 3000, () => console.log(process.env.PORT));
