@@ -97,15 +97,27 @@ router.post("/recipes", async (ctx, next) => {
 router.put("/recipes/:id/star", async (ctx, next) => {
   const { id } = ctx.params;
   const { account } = ctx.query;
-  const starId = await knex("stars").insert({ account, recipe: id });
-  ctx.body = { success: starId ? true : false };
+
+  const [{ id: userId }] = await knex("users")
+    .select("id")
+    .where({ account });
+
+  const [starId] = await knex("stars").insert({ user: userId, recipe: id });
+  ctx.body = { success: true };
 });
 
 router.delete("/recipes/:id/star", async (ctx, next) => {
   const { id } = ctx.params;
   const { account } = ctx.query;
-  const num = await knex("stars").where({account, recipe:id}).del();
-  ctx.body = { success : num > 0 };
+
+  const [{ id: userId }] = await knex("users")
+    .select("id")
+    .where({ account });
+
+  const num = await knex("stars")
+    .where({ user: userId, recipe: id })
+    .del();
+  ctx.body = { success: true };
 });
 
 // ユーザ
