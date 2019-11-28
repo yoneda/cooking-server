@@ -94,6 +94,20 @@ router.post("/recipes", async (ctx, next) => {
   console.log("done!");
 });
 
+router.put("/recipes/:id/star", async (ctx, next) => {
+  const { id } = ctx.params;
+  const { account } = ctx.query;
+  const starId = await knex("stars").insert({ account, recipe: id });
+  ctx.body = { success: starId ? true : false };
+});
+
+router.delete("/recipes/:id/star", async (ctx, next) => {
+  const { id } = ctx.params;
+  const { account } = ctx.query;
+  const num = await knex("stars").where({account, recipe:id}).del();
+  ctx.body = { success : num > 0 };
+});
+
 // ユーザ
 router.get("/users", async (ctx, next) => {
   const users = await knex.select().from("users");
@@ -150,7 +164,7 @@ router.del("/users", async (ctx, next) => {
   const num = await knex("users")
     .where({ account })
     .del();
-  ctx.body = {success: num > 0 };
+  ctx.body = { success: num > 0 };
 });
 
 app.use(router.routes()).use(router.allowedMethods());
