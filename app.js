@@ -50,6 +50,7 @@ router.get("/recipes", async (ctx, next) => {
     GROUP BY r.id;
   */
   // group_concatの部分をもっと綺麗に書きたかったら、knexに寄せてgropConcat文を生成できる関数をutilsとして追加する
+  // knexの限界を感じている…
   const ingredientsQuery = knex("recipes_ingredients as r_i")
     .select("r_i.id", "r_i.recipe", "i.name")
     .innerJoin("ingredients as i", "r_i.ingredient", "i.id")
@@ -71,6 +72,23 @@ router.get("/recipes", async (ctx, next) => {
 
 router.get("/recipes/:id", async (ctx, next) => {
   const { id } = ctx.params;
+  const ingredientsQuery = knex("recipes_ingredients as r_i")
+    .select("r_i.id", "r_i.recipe", "i.name")
+    .innerJoin("ingredients as i", "r_i.ingredient", "i.id")
+    .as("b_r_i");
+  const recipe = await knex("recipes as r")
+    .select(
+      "r.*",
+      "u.account",
+      knex.raw("group_concat(d.text separator ',') as directions"),
+      knex.raw("group_concat(b_r_i.name separator ',') as ingredients")
+    )
+    .leftJoin("users as u", "r.user", "u.id")
+    .leftJoin("directions as d", "r.id", "d.recipe")
+    .leftJoin(ingredientsQuery, "r.id", "b_r_i.recipe")
+    .groupBy("r.id")
+    .where("r.id", id);
+  ctx.body = { recipe: recipe };
 });
 
 router.post("/recipes", async (ctx, next) => {
