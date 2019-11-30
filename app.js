@@ -8,17 +8,6 @@ const cors = require("@koa/cors");
 const app = new koa();
 const router = new koaRouter();
 
-const knexConfig = {
-  client: "mysql",
-  connection: {
-    host: "m7nj9dclezfq7ax1.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
-    user: "a6p9p4y8675jagbb",
-    password: "vh2sf4kiobbbdmy7",
-    database: "do6sfdqn1wbkjayj"
-  }
-};
-const knex = require("knex")(knexConfig);
-
 const dayjs = require("dayjs");
 const { pickBy, cloneDeep } = require("lodash");
 
@@ -33,9 +22,9 @@ app.use(bodyParser());
 
 // TODO: 必須のリクエストパラメータがあるか考える
 // レシピ
+/*
 router.get("/recipes", async (ctx, next) => {
   // ALERT: 以下のSQL文と同等
-  /*
     SELECT r.*, u.account, GROUP_CONCAT(d.text SEPARATOR ",") AS directions, GROUP_CONCAT(b_r_i.name SEPARATOR ",") AS ingredients
     FROM recipes AS r
     LEFT JOIN users AS u ON r.user = u.id
@@ -48,7 +37,6 @@ router.get("/recipes", async (ctx, next) => {
     AS b_r_i
     ON r.id = b_r_i.recipe
     GROUP BY r.id;
-  */
   // group_concatの部分をもっと綺麗に書きたかったら、knexに寄せてgropConcat文を生成できる関数をutilsとして追加する
   // knexの限界を感じている…
   const ingredientsQuery = knex("recipes_ingredients as r_i")
@@ -69,7 +57,9 @@ router.get("/recipes", async (ctx, next) => {
     .orderBy("r.updatedAt", "desc");
   ctx.body = { recipes: recipes };
 });
+*/
 
+/*
 router.get("/recipes/:id", async (ctx, next) => {
   const { id } = ctx.params;
   const ingredientsQuery = knex("recipes_ingredients as r_i")
@@ -219,6 +209,13 @@ router.del("/users", async (ctx, next) => {
   ctx.body = { success: num > 0 };
 });
 
+*/
+
+const routes = require("./routes");
+
+console.log(routes);
+
+app.use(routes).use(router.allowedMethods());
 app.use(router.routes()).use(router.allowedMethods());
 
 app.listen(process.env.PORT || 3000, () => console.log(process.env.PORT));
