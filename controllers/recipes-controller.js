@@ -99,8 +99,23 @@ const postRecipes = async ctx => {
   ctx.body = { success: true };
 };
 
+const putRecipes = async ctx => {
+};
+
+const delRecipes = async ctx => {
+  const { id } = ctx.params;
+
+  const recipe = await db("recipes").where({id}).select();
+  /*
+  db("recipes").where({id}).del();
+  db("directions").where({recipe:id}).del();
+  db("ingredients")*/
+};
+
 module.exports = {
   get: getRecipes,
   getOne: getOneRecipe,
-  post: postRecipes
+  post: postRecipes,
+  put: putRecipes,
+  del: delRecipes,
 };
