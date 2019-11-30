@@ -1,3 +1,4 @@
+const dayjs = require("dayjs");
 const db = require("../db");
 
 // MEMO: group_concatの部分を関数化すると綺麗にかける
@@ -58,7 +59,48 @@ const getOneRecipe = async ctx => {
   ctx.body = { recipe: recipe };
 };
 
+const postRecipes = async ctx => {
+  const { title, ingredients, directions, cookTime, cost, account } = ctx.query;
+
+  const [user] = await db
+    .select()
+    .from("users")
+    .where({ account })
+    .limit(1);
+
+  const [recipesId] = await db("recipes").insert({
+    title,
+    updatedAt: dayjs().format("YYYY-M-D H:mm:ss"),
+    createdAt: dayjs().format("YYYY-M-D H:mm:ss"),
+    cookTime: parseInt(cookTime, 10),
+    cost: parseInt(cost, 10),
+    user: user.id
+  });
+  const [directionsId] = await db.into("directions").insert(
+    directions.split(",").map((direction, index) => ({
+      text: direction,
+      recipe: recipesId,
+      process: index
+    }))
+  );
+  const [ingredientIds] = await Promise.all(
+    ingredients.split(",").map(ingredient =>
+      db("ingredients").insert({
+        name: ingredient
+      })
+    )
+  );
+  await db("recipes_ingredients").insert(
+    ingredientIds.map(id => ({
+      recipe: recipesId,
+      ingredient: id
+    }))
+  );
+  ctx.body = { success: true };
+};
+
 module.exports = {
   get: getRecipes,
   getOne: getOneRecipe,
+  post: postRecipes
 };
