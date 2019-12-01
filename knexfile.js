@@ -24,6 +24,9 @@ module.exports = {
     migrations: {
       directory: "./migrations",
       tableName: "init"
+    },
+    seeds: {
+      directory: "./seeds"
     }
   },
   staging: {
