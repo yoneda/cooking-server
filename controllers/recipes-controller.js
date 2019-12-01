@@ -83,6 +83,7 @@ const postRecipes = async ctx => {
       process: index
     }))
   );
+  // TODO: 既存の材料があった場合、insertはせずに既存のものを参照するという処理が必要
   const [ingredientIds] = await Promise.all(
     ingredients.split(",").map(ingredient =>
       db("ingredients").insert({
