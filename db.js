@@ -1,4 +1,5 @@
 const config = require("./knexfile");
-const db = require("knex")(config.development);
 
+// TODO: production/developモードで設定を変更する
+const db = require("knex")(config.development);
 module.exports = db;
