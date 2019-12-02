@@ -1,5 +1,6 @@
 const dayjs = require("dayjs");
 const db = require("../db");
+const { pick, pickBy, identity } = require("lodash");
 
 // MEMO: group_concatの部分を関数化すると綺麗にかける
 // MEMO: 以下のSQL文と同等
@@ -68,7 +69,7 @@ const postRecipes = async ctx => {
     .where({ account })
     .limit(1);
 
-  const [recipesId] = await db("recipes").insert({
+  const [recipeId] = await db("recipes").insert({
     title,
     updatedAt: dayjs().format("YYYY-M-D H:mm:ss"),
     createdAt: dayjs().format("YYYY-M-D H:mm:ss"),
@@ -76,10 +77,10 @@ const postRecipes = async ctx => {
     cost: parseInt(cost, 10),
     user: user.id
   });
-  const [directionsId] = await db.into("directions").insert(
+  const [directionsId] = await db("directions").insert(
     directions.split(",").map((direction, index) => ({
       text: direction,
-      recipe: recipesId,
+      recipe: recipeId,
       process: index
     }))
   );
@@ -101,14 +102,44 @@ const postRecipes = async ctx => {
 
   await db("recipes_ingredients").insert(
     ingredientIds.map(id => ({
-      recipe: recipesId,
+      recipe: recipeId,
       ingredient: id
     }))
   );
   ctx.body = { success: true };
 };
 
-const putRecipes = async ctx => {};
+const putRecipes = async ctx => {
+  // TODO: 編集権限のチェックが必要
+  const { id: recipeId } = ctx.params;
+  const { ingredients, directions } = ctx.query;
+
+  // recipeテーブルのtitle, cookTime, coconst { ingredients, directions } = ctx.query;st カラムを更新
+  const clearQuery = pickBy(ctx.query, identity);
+  const recipeQuery = pick(clearQuery, ["title", "cookTime", "cost"]);
+  await db("recipes")
+    .update(recipeQuery)
+    .where({ id: recipeId });
+
+  // directionsテーブルを更新。全部消して全部いれる
+  if (directions) {
+    await db("directions")
+      .del()
+      .where({ recipe: recipeId });
+    await db("directions").insert(
+      directions.split(",").map((direction, index) => ({
+        text: direction,
+        recipe: recipeId,
+        process: index
+      }))
+    );
+  }
+  
+  // ingredients/recipes_ingredientsテーブルを更新。
+  // ingredients: 既存にないものがあれば追加
+  // recipes_ingredients: 該当レシピものもすべて削除
+  // recipes_ingredients: 新しいingredientsに基づいて追加しなおす
+};
 
 const delRecipes = async ctx => {
   const { id } = ctx.params;
