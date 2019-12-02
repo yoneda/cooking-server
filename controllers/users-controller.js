@@ -18,8 +18,8 @@ const getOneUser = async ctx => {
 
 // TODO: HttpResponce を201にする
 const postUsers = async ctx => {
-  const { account, mail, pass } = ctx.query;
-  const [id] = await db.into("users").insert({ account, mail, pass });
+  const { account, mail, password } = ctx.query;
+  const [id] = await db.into("users").insert({ account, mail, password });
   const [user] = await db
     .select()
     .from("users")
