@@ -134,7 +134,7 @@ const putRecipes = async ctx => {
       }))
     );
   }
-  
+
   // ingredients/recipes_ingredientsテーブルを更新。
   // ingredients: 既存にないものがあれば追加
   // recipes_ingredients: 該当レシピものもすべて削除
@@ -143,14 +143,17 @@ const putRecipes = async ctx => {
 
 const delRecipes = async ctx => {
   const { id } = ctx.params;
-
-  const recipe = await db("recipes")
-    .where({ id })
-    .select();
-  /*
-  db("recipes").where({id}).del();
-  db("directions").where({recipe:id}).del();
-  db("ingredients")*/
+  await db("recipes")
+    .del()
+    .where({ id });
+  await db("directions")
+    .del()
+    .where({ recipe: id });
+  await db("recipes_ingredients")
+    .del()
+    .where({ recipe: id });
+  // MEMO: 本来はingredientテーブルの削除まですべき
+  ctx.body = { success: true };
 };
 
 module.exports = {
