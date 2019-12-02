@@ -83,14 +83,22 @@ const postRecipes = async ctx => {
       process: index
     }))
   );
-  // TODO: 既存の材料があった場合、insertはせずに既存のものを参照するという処理が必要
-  const [ingredientIds] = await Promise.all(
-    ingredients.split(",").map(ingredient =>
-      db("ingredients").insert({
+
+  let ingredientIds = [];
+  for (const ingredient of ingredients.split(",")) {
+    const existId = await db("ingredients")
+      .where({ name: ingredient })
+      .limit(1)
+      .then(results => (results.length > 0 ? results[0].id : 0));
+    if (existId > 0) ingredientIds.push(existId);
+    else {
+      const [createdId] = await db("ingredients").insert({
         name: ingredient
-      })
-    )
-  );
+      });
+      ingredientIds.push(createdId);
+    }
+  }
+
   await db("recipes_ingredients").insert(
     ingredientIds.map(id => ({
       recipe: recipesId,
@@ -100,13 +108,14 @@ const postRecipes = async ctx => {
   ctx.body = { success: true };
 };
 
-const putRecipes = async ctx => {
-};
+const putRecipes = async ctx => {};
 
 const delRecipes = async ctx => {
   const { id } = ctx.params;
 
-  const recipe = await db("recipes").where({id}).select();
+  const recipe = await db("recipes")
+    .where({ id })
+    .select();
   /*
   db("recipes").where({id}).del();
   db("directions").where({recipe:id}).del();
@@ -118,5 +127,5 @@ module.exports = {
   getOne: getOneRecipe,
   post: postRecipes,
   put: putRecipes,
-  del: delRecipes,
+  del: delRecipes
 };

@@ -59,5 +59,5 @@ module.exports = {
   getOne: getOneUser,
   post: postUsers,
   put: putUser,
-  del: delUser
+  del: delUser,
 };
