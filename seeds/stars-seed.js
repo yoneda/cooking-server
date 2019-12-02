@@ -1,4 +1,4 @@
-const fake = require("./fake");
+const fake = require("../fake");
 
 exports.seed = knex =>
   knex("stars")

@@ -1,4 +1,4 @@
-const fake = require("./fake");
+const fake = require("../fake");
 const { pick } = require("lodash");
 
 // MEMO: async関数はPromiseを返す
