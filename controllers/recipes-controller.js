@@ -152,6 +152,12 @@ const putRecipes = async ctx => {
 
 const delRecipes = async ctx => {
   const { id } = ctx.params;
+  const ingredientIds = (
+    await db("recipes_ingredients")
+      .select("ingredient")
+      .where({ recipe: id })
+  ).map(row => row.ingredient);
+
   await db("recipes")
     .del()
     .where({ id });
@@ -161,7 +167,18 @@ const delRecipes = async ctx => {
   await db("recipes_ingredients")
     .del()
     .where({ recipe: id });
-  // MEMO: 本来はingredientテーブルの削除まですべき
+  for (const ingredientId of ingredientIds) {
+    const [{ reference }] = await db("ingredients").where({ id: ingredientId });
+    if (reference == 1) {
+      await db("ingredients")
+        .del()
+        .where({ id: ingredientId });
+    } else {
+      await db("ingredients")
+        .where({ id: ingredientId })
+        .update({ reference: reference - 1 });
+    }
+  }
   ctx.body = { success: true };
 };
 
