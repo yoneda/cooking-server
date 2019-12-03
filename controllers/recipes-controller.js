@@ -91,10 +91,19 @@ const postRecipes = async ctx => {
       .where({ name: ingredient })
       .limit(1)
       .then(results => (results.length > 0 ? results[0].id : 0));
-    if (existId > 0) ingredientIds.push(existId);
-    else {
+    if (existId > 0) {
+      const [{ reference }] = await db("ingredients")
+        .select("reference")
+        .where({ name: ingredient })
+        .limit(1);
+      await db("ingredients")
+        .where({ name: ingredient })
+        .update({ reference: reference + 1 });
+      ingredientIds.push(existId);
+    } else {
       const [createdId] = await db("ingredients").insert({
-        name: ingredient
+        name: ingredient,
+        reference: 1
       });
       ingredientIds.push(createdId);
     }
