@@ -26,6 +26,7 @@ exports.up = function(knex) {
     .createTable("ingredients", table => {
       table.increments("id");
       table.string("name");
+      table.integer("reference");
     })
     .createTable("recipes_ingredients", table => {
       table.increments("id");
