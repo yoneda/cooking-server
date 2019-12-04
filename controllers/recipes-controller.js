@@ -123,7 +123,7 @@ const putRecipes = async ctx => {
   const { id: recipeId } = ctx.params;
   const { ingredients, directions } = ctx.query;
 
-  // recipeテーブルのtitle, cookTime, coconst { ingredients, directions } = ctx.query;st カラムを更新
+  // recipeテーブルのtitle, cookTime, coconst { ingredients, directions } = ctx.query カラムを更新
   const clearQuery = pickBy(ctx.query, identity);
   const recipeQuery = pick(clearQuery, ["title", "cookTime", "cost"]);
   await db("recipes")
@@ -144,10 +144,61 @@ const putRecipes = async ctx => {
     );
   }
 
-  // ingredients/recipes_ingredientsテーブルを更新。
-  // ingredients: 既存にないものがあれば追加
-  // recipes_ingredients: 該当レシピものもすべて削除
-  // recipes_ingredients: 新しいingredientsに基づいて追加しなおす
+  const existIngredientIds = await db("recipes_ingredients")
+    .select("ingredient")
+    .where({ recipe: recipeId })
+    .then(results => results.map(r => r.ingredient));
+
+  for (const ingredientId of existIngredientIds) {
+    const [{ reference }] = await db("ingredients")
+      .select("reference")
+      .where({ id: ingredientId });
+    if (reference > 1) {
+      await db("ingredients")
+        .update({ reference: reference - 1 })
+        .where({ id: ingredientId });
+    } else {
+      await db("ingredients")
+        .del()
+        .where({ id: ingredientId });
+    }
+  }
+
+  let ingredientIds = [];
+  for (const ingredient of ingredients.split(",")) {
+    const existId = await db("ingredients")
+      .where({ name: ingredient })
+      .limit(1)
+      .then(results => (results.length > 0 ? results[0].id : 0));
+    if (existId > 0) {
+      const [{ reference }] = await db("ingredients")
+        .select("reference")
+        .where({ name: ingredient })
+        .limit(1);
+      await db("ingredients")
+        .where({ name: ingredient })
+        .update({ reference: reference + 1 });
+      ingredientIds.push(existId);
+    } else {
+      const [createdId] = await db("ingredients").insert({
+        name: ingredient,
+        reference: 1
+      });
+      ingredientIds.push(createdId);
+    }
+  }
+  // recipes-seed.js と同じコードを再度かいているのでリファクタリングが必要
+
+  await db("recipes_ingredients")
+    .del()
+    .where({ recipe: recipeId });
+
+  await db("recipes_ingredients").insert(
+    ingredientIds.map(id => ({
+      recipe: recipeId,
+      ingredient: id
+    }))
+  );
 };
 
 const delRecipes = async ctx => {
