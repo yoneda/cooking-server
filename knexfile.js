@@ -38,18 +38,23 @@ module.exports = {
   },
 
   production: {
-    client: "postgresql",
+    client: "mysql",
     connection: {
-      database: "my_db",
-      user: "username",
-      password: "password"
+      host: "tuy8t6uuvh43khkk.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+      database: "pa4cpcclmf6ps1ff",
+      user: "tquwcfdj27o9faux",
+      password: "m9brv58bygvynqwf"
     },
     pool: {
       min: 2,
       max: 10
     },
     migrations: {
-      tableName: "knex_migrations"
+      directory: "./migrations",
+      tableName: "init"
+    },
+    seeds: {
+      directory: "./seeds"
     }
   }
 };
