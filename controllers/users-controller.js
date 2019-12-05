@@ -33,6 +33,8 @@ const putUser = async ctx => {
   const { account } = ctx.params;
   const clearQuery = pickBy(ctx.query, value => value !== undefined);
 
+  console.log(clearQuery);
+
   await db("users")
     .where({ account })
     .update(clearQuery);
