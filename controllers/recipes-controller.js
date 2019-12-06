@@ -51,8 +51,8 @@ const getOneRecipe = async ctx => {
     .select(
       "r.*",
       "u.account",
-      db.raw("group_concat(d.text separator ',') as directions"),
-      db.raw("group_concat(b_r_i.name separator ',') as ingredients")
+      db.raw("group_concat(distinct(d.text) separator ',') as directions"),
+      db.raw("group_concat(distinct(b_r_i.name) separator ',') as ingredients")
     )
     .leftJoin("users as u", "r.user", "u.id")
     .leftJoin("directions as d", "r.id", "d.recipe")
