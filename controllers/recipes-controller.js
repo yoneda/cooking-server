@@ -63,6 +63,8 @@ const getOneRecipe = async ctx => {
 const postRecipes = async ctx => {
   const { title, ingredients, directions, cookTime, cost, account } = ctx.query;
 
+  console.log(ctx.query);
+  
   const [user] = await db
     .select()
     .from("users")
