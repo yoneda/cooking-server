@@ -45,7 +45,7 @@ const getOneRecipe = async ctx => {
     .select("r_i.id", "r_i.recipe", "i.name")
     .innerJoin("ingredients as i", "r_i.ingredient", "i.id")
     .as("b_r_i");
-  const recipe = await db("recipes as r")
+  const [recipe] = await db("recipes as r")
     .select(
       "r.*",
       "u.account",
@@ -64,7 +64,7 @@ const postRecipes = async ctx => {
   const { title, ingredients, directions, cookTime, cost, account } = ctx.query;
 
   console.log(ctx.query);
-  
+
   const [user] = await db
     .select()
     .from("users")
