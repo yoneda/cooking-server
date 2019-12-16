@@ -22,6 +22,7 @@
     "@koa/cors": "^3.0.0",
     "dayjs": "^1.8.17",
     "dotenv": "^8.2.0",
+    "jsonwebtoken": "^8.5.1",
     "knex": "^0.20.2",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
