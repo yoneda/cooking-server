@@ -11,5 +11,6 @@ router.del("/users/:account", controller.users.del);
 router.get("/users/:account/recipes", controller.usersRelated.getRecipes);
 router.get("/users/:account/stars", controller.usersRelated.getStaredRecipes);
 
+router.post("/users/login", controller.usersAuth.loginUser);
 
 module.exports = router.routes();
