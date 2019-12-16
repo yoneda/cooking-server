@@ -5,9 +5,12 @@ const bodyParser = require("koa-bodyparser");
 const json = require("koa-json");
 const cors = require("@koa/cors");
 const routes = require("./routes");
+const env = require("dotenv");
 const app = new koa();
 const router = new koaRouter();
 
+// .envファイルを使用
+env.config();
 
 // corsを許可
 app.use(cors());

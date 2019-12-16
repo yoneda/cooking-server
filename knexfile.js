@@ -3,12 +3,12 @@
 module.exports = {
   development: {
     client: "mysql",
-    connection: {
-      host: "tuy8t6uuvh43khkk.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
-      database: "pa4cpcclmf6ps1ff",
-      user: "tquwcfdj27o9faux",
-      password: "m9brv58bygvynqwf"
-    },
+    connection: () => ({
+      host: process.env.DB_HOST,
+      database: process.env.DB_DATABASE,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS
+    }),
     pool: {
       min: 2,
       max: 10
@@ -39,12 +39,12 @@ module.exports = {
 
   production: {
     client: "mysql",
-    connection: {
-      host: "tuy8t6uuvh43khkk.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
-      database: "pa4cpcclmf6ps1ff",
-      user: "tquwcfdj27o9faux",
-      password: "m9brv58bygvynqwf"
-    },
+    connection: () => ({
+      host: process.env.DB_HOST,
+      database: process.env.DB_DATABASE,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS
+    }),
     pool: {
       min: 2,
       max: 10
