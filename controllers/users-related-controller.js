@@ -1,4 +1,3 @@
-const { omit } = require("lodash");
 const db = require("../db");
 
 const getUsersRecipes = async ctx => {
