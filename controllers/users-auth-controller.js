@@ -15,7 +15,7 @@ const loginUser = async ctx => {
     { user: pick(user, ["account", "mail", "password"]) },
     secret,
     {
-      expiresIn: "60000"
+      expiresIn: "2m"
     }
   );
   ctx.body = { user: { ...user, token } };
