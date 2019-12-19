@@ -1,6 +1,6 @@
 const db = require("../db");
 const jwt = require("jsonwebtoken");
-const { pick, isEmpty } = require("lodash");
+const { pick, omit, isEmpty } = require("lodash");
 
 const loginUser = async ctx => {
   const { account, password } = ctx.query;
@@ -24,7 +24,7 @@ const loginUser = async ctx => {
       expiresIn: "2m"
     }
   );
-  ctx.body = { user: { ...user, token } };
+  ctx.body = { user: { ...omit(user, ["password"]), token } };
 };
 
 module.exports = {
