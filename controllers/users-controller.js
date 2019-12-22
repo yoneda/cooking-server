@@ -33,7 +33,9 @@ const postUsers = async ctx => {
     .select()
     .from("users")
     .where({ id });
-  ctx.body = { user: user };
+  
+    const token = genToken(account, password);
+    ctx.body = { user: { ...omit(user, ["password"]), token } };
 };
 
 // TODO: HttpResponce を201にする
@@ -41,9 +43,7 @@ const postUsers = async ctx => {
 const putUser = async ctx => {
   const { account } = ctx.params;
   const clearQuery = pickBy(ctx.query, value => value !== undefined);
-
-  console.log(clearQuery);
-
+  
   await db("users")
     .where({ account })
     .update(clearQuery);
