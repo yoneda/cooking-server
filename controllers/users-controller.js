@@ -18,17 +18,16 @@ const getOneUser = async ctx => {
 
 // TODO: HttpResponce を201にする
 const postUsers = async ctx => {
-  const { account, mail, password } = ctx.query;
+  const { account, password } = ctx.query;
   // 既に同じアカウントのユーザが登録されていないか
   const res = await db("users")
     .select("id")
     .where({ account })
-    .orWhere({ mail })
     .limit(1);
   if (res.length > 0) {
     ctx.throw(400, "duplicate account or mail");
   }
-  const [id] = await db.into("users").insert({ account, mail, password });
+  const [id] = await db.into("users").insert({ account, password });
   const [user] = await db
     .select()
     .from("users")
