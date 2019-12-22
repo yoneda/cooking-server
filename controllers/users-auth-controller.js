@@ -11,9 +11,7 @@ const loginUser = async ctx => {
     .limit(1);
 
   if (isEmpty(user)) {
-    ctx.status = 401;
-    ctx.body = { error: "invalid username or password" };
-    return;
+    ctx.throw(401,"invalid username or password");
   }
 
   const secret = process.env.SECRET;
