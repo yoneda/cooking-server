@@ -1,6 +1,7 @@
 const db = require("../db");
-const jwt = require("jsonwebtoken");
-const { pick, omit, isEmpty } = require("lodash");
+const { omit, isEmpty } = require("lodash");
+const genToken = require("../utils/genToken");
+
 
 const loginUser = async ctx => {
   const { account, password } = ctx.query;
@@ -14,14 +15,7 @@ const loginUser = async ctx => {
     ctx.throw(401,"invalid username or password");
   }
 
-  const secret = process.env.SECRET;
-  const token = jwt.sign(
-    { user: pick(user, ["account", "mail", "password"]) },
-    secret,
-    {
-      expiresIn: "2m"
-    }
-  );
+  const token = genToken(account, password);
   ctx.body = { user: { ...omit(user, ["password"]), token } };
 };
 
